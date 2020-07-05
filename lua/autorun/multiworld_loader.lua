@@ -1,4 +1,5 @@
 MWorld = {};
+MWorld.Prefix = 'Multiworld';
 
 print( '[Multiworld] Initialization of the addon...' );
 
