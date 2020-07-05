@@ -1,0 +1,16 @@
+{ 
+	"title"		:	"Multiworld Mod - Server Sessions", 
+	"type"		:	"tool", 
+	"tags"		:	[ "roleplay", "fun" ], 
+	"ignore"	: 
+	[ 
+		"*.psd", 
+		"*.vcproj", 
+		"*.svn*",
+		"LICENSE",
+		"README.md",
+		".gitattributes",
+		"vs-code-project.code-workspace",
+		"*.git*"
+	]
+}
