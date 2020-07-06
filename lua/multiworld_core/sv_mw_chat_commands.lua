@@ -64,7 +64,7 @@ hook.Add( 'PlayerSay', MWorld.Prefix .. '_Chat_Commands', function( ply, text, i
     isCommand = CommandExec( 'mw reset', text, function( cmd_name, args )
 
         local IsReset = MWorld.Manager:SetPlayerWorld( ply );
-        ply:ChatPrint( '[Multiworld][Sccess] You are back in the main world.' );
+        ply:ChatPrint( '[Multiworld][Sccess] You are back in the master world.' );
 
     end );
 

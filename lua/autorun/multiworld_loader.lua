@@ -1,7 +1,11 @@
 MWorld = {};
 MWorld.Prefix = 'Multiworld';
+MWorld.Debug = function( text )
+    text = tostring( text );
+    MsgN( '[Multiworld][Debug] ' .. text );
+end;
 
-print( '[Multiworld] Initialization of the addon...' );
+MWorld.Debug( 'Initialization of the addon...' );
 
 local function GetAddonFilelist( DirectoryPath )
     local FileList = {};
@@ -26,7 +30,7 @@ end;
 local AddonFileList = GetAddonFilelist( 'multiworld_core' );
 
 for FilePath, Type in pairs( AddonFileList ) do
-    print( '[Multiworld] Loading script -> ' .. FilePath );
+    MWorld.Debug( 'Loading script -> ' .. FilePath );
 
     if ( SERVER ) then
         if ( Type ~= 'sv' ) then
@@ -35,19 +39,19 @@ for FilePath, Type in pairs( AddonFileList ) do
         
         if ( Type == 'sv' or Type == 'sh' ) then
             include( FilePath );
-            print( '[Multiworld] Execute script ---> ' .. FilePath );
+            MWorld.Debug( 'Execute script ---> ' .. FilePath );
         end;
     elseif ( CLIENT ) then
         if ( Type == 'cl' or Type == 'sh' ) then
             include( FilePath );
-            print( '[Multiworld] Execute script ---> ' .. FilePath );
+            MWorld.Debug( 'Execute script ---> ' .. FilePath );
         end;
     end;
 end;
 
-print( '[Multiworld] Addon is initialized!' );
+MWorld.Debug( 'Addon is initialized!' );
 
 AddonFileList = nil;
 GetAddonFilelist = nil;
 
-print( '[Multiworld] Clearing memory from unnecessary lua functions.' );
+MWorld.Debug( 'Clearing memory from unnecessary lua functions.' );
