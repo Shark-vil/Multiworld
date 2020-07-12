@@ -1,15 +1,43 @@
 hook.Add( 'MWorld_SetPlayerWorld', MWorld.Prefix .. "_PLayer_ChangeWorld", function( ply, world_name )
 
-    local World = MWorld.Worlds:GetWorld( world_name );
-    local Ents = World:GetEntities();
+    local Worlds = MWorld.Worlds:GetWorlds();
 
-    for _, ent in pairs( MWorld.Manager:GetRegistredEntities() ) do
-        if ( IsValid( ent ) ) then
-            if ( table.HasValue( Ents, ent ) ) then
+    local function EntityDrawing( ent, IsDrawing )
+        if ( IsValid( ent ) and ent:GetClass() == "prop_physics" ) then
+            if ( IsDrawing ) then
                 ent:SetNoDraw( false );
             else
                 ent:SetNoDraw( true );
             end;
+        end;
+    end;
+
+    local function RopeDrawing( rope, IsDrawing )
+        if ( IsValid( rope ) and rope:GetClass() == "class C_RopeKeyframe" ) then
+            local RenderMode;
+            
+            if ( IsDrawing ) then
+                RenderMode = RENDERMODE_NORMAL;
+            else
+                RenderMode = RENDERMODE_TRANSCOLOR;
+            end;
+
+            if ( rope:GetRenderMode() ~= RenderMode ) then
+                rope:SetRenderMode( RenderMode );
+            end;
+        end;
+    end;
+
+    for _, World in pairs( Worlds ) do
+        local IsDrawing = false;
+
+        if ( World:GetName() == world_name ) then
+            IsDrawing = true;
+        end;
+
+        for _, ent in pairs( World:GetEntities() ) do
+            EntityDrawing( ent, IsDrawing );
+            RopeDrawing( ent, IsDrawing );
         end;
     end;
 

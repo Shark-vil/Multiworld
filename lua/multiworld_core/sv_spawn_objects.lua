@@ -5,11 +5,15 @@ hook.Add( "PlayerSpawnedProp", MWorld.Prefix .. "_PlayerSpawnedProp", function( 
     
     if ( World ~= nil ) then
         timer.Simple( Delay, function()
+            if ( not IsValid( ent ) ) then return; end;
+
             MWorld.Manager:RegisterEntity( ent );
             World:AddEntity( ent );
         end );
     else
         timer.Simple( Delay, function()
+            if ( not IsValid( ent ) ) then return; end;
+            
             MWorld.Manager:RegisterEntity( ent );
         end );
     end;

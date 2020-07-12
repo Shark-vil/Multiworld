@@ -17,12 +17,15 @@ local Meta = {
             return false;
         end;
 
-        local World = MWorld.Worlds:GetWorld( world_name );
+        if ( not MWorld.Worlds:IsExists( world_name ) ) then
+            return false;
+        end;
 
         if ( ply:IsAdmin() or ply:IsSuperAdmin() ) then
             self:SetPlayerWorld( ply, world_name );
             return true;
         else
+            local World = MWorld.Worlds:GetWorld( world_name );
             if ( World:GetPassword() == world_password ) then
                 self:SetPlayerWorld( ply, world_name );
                 return true;
@@ -61,6 +64,8 @@ local Meta = {
     end,
 
     RegisterEntity = function( self, ent )
+        ent:SetCustomCollisionCheck( true );
+        
         table.insert( RegistredEntity, ent );
 
         if ( SERVER ) then

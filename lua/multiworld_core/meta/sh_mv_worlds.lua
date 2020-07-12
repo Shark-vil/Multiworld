@@ -85,6 +85,23 @@ local Meta = {
                 AddEntity = function( self, ent )
                     table.insert( self.Entities, ent );
 
+                    if ( CLIENT ) then
+                        -- local ropes = ents.FindByClass( "keyframe_rope" );
+                        local ropes = ents.FindByClass( "class C_RopeKeyframe" );
+
+                        for _, rope in pairs( ropes ) do 
+                            if ( not table.HasValue( self.Entities, rope ) ) then
+                                local entsAtRope = ents.FindInSphere( rope:GetPos(), 0.1 );
+                                if ( entsAtRope ~= nil ) then
+                                    if ( table.HasValue( entsAtRope, ent ) ) then
+                                        table.insert( self.Entities, rope );
+                                        break;
+                                    end;
+                                end;
+                            end;
+                        end;
+                    end;
+
                     MWorld.Debug( 'Added entity [ ' .. tostring( ent ) .. ' ] to world ' .. self.WorldName );
 
                     if ( SERVER ) then
@@ -141,6 +158,16 @@ local Meta = {
         world_name = self:NormalizeWorldName( world_name );
 
         return Worlds[ world_name ];
+    end,
+
+    IsExists = function( self, world_name )
+        world_name = self:NormalizeWorldName( world_name );
+        
+        if ( Worlds[ world_name ] == nil ) then
+            return false;
+        end;
+
+        return true;
     end,
 
     GetWorlds = function( self )
