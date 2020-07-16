@@ -4,5 +4,4 @@ util.AddNetworkString( MWorld.Prefix .. '_PlayerSpawnedProp' );
 util.AddNetworkString( MWorld.Prefix .. '_WorldCreated' );
 util.AddNetworkString( MWorld.Prefix .. '_AddEntity' );
 util.AddNetworkString( MWorld.Prefix .. '_RegisterEntity' );
-util.AddNetworkString( MWorld.Prefix .. '_SynsRegisterEntity' );
-util.AddNetworkString( MWorld.Prefix .. '_SynsWorld' );
+util.AddNetworkString( MWorld.Prefix .. '_SyncWorld' );

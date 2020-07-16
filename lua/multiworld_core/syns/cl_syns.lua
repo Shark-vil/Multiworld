@@ -1,4 +1,4 @@
-net.Receive( MWorld.Prefix .. '_SynsWorld', function( len )
+net.Receive( MWorld.Prefix .. '_SyncWorld', function( len )
 
     local world_name = net.ReadString();
     local ownerId = net.ReadString();
@@ -6,7 +6,7 @@ net.Receive( MWorld.Prefix .. '_SynsWorld', function( len )
     local entitiesId = net.ReadTable();
 
     local Owner = nil;
-    if ( ownerId ~= 'master' ) then
+    if ( ownerId ~= 'world' ) then
         Owner = player.GetBySteamID( ownerId );
     end;
 
@@ -20,20 +20,6 @@ net.Receive( MWorld.Prefix .. '_SynsWorld', function( len )
 
     for _, entid in pairs( entitiesId ) do
         World:AddEntity( Entity( entid ) );
-    end;
-
-end );
-
-net.Receive( MWorld.Prefix .. '_SynsRegisterEntity', function( len )
-
-    local RegistredEntityIds = net.ReadTable();
-
-    for _, id in pairs( RegistredEntityIds ) do
-        local ent = Entity( id );
-
-        if ( IsValid( ent ) ) then
-            MWorld.Worlds:RegisterEntity( ent );
-        end;
     end;
 
 end );

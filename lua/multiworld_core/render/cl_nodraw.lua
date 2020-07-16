@@ -1,5 +1,7 @@
 hook.Add( 'MWorld_SetPlayerWorld', MWorld.Prefix .. "_PLayer_ChangeWorld", function( ply, world_name )
 
+    if ( ply ~= LocalPlayer() ) then return; end;
+
     local Worlds = MWorld.Worlds:GetWorlds();
 
     local function EntityDrawing( ent, IsDrawing )

@@ -7,7 +7,6 @@
 --]]
 
 local PlayerWorlds = {};
-local RegistredEntity = {};
 
 local Meta = {
 
@@ -41,7 +40,20 @@ local Meta = {
             world_name = 'master';
         end;
 
+        local World = MWorld.Worlds:GetWorld( world_name );
+
+        if ( World == nil ) then return; end;
+
+        if ( PlayerWorlds[ ply ] ~= nil ) then
+            local CurrentWorld = MWorld.Worlds:GetWorld( PlayerWorlds[ ply ] );
+            CurrentWorld:RemovePlayer( ply );
+        end;
+
         PlayerWorlds[ ply ] = world_name;
+
+        local CurrentWorld = MWorld.Worlds:GetWorld( world_name );
+        CurrentWorld:AddPlayer( ply );
+
         hook.Run( 'MWorld_SetPlayerWorld', ply, world_name );
 
         MWorld.Debug( 'Parrent player [ ' .. tostring( ply ) .. ' ] to world ' .. world_name );
@@ -63,49 +75,62 @@ local Meta = {
         return MWorld.Worlds:GetWorld( PlayerWorlds[ ply ] );
     end,
 
-    RegisterEntity = function( self, ent )
-        ent:SetCustomCollisionCheck( true );
-        
-        table.insert( RegistredEntity, ent );
-
-        if ( SERVER ) then
-            net.Start( MWorld.Prefix .. '_RegisterEntity' );
-            net.WriteInt( ent:EntIndex(), 32 );
-            net.Broadcast();
+    RegisterEntity = function( self, ent, world_name, delay )
+        if ( delay == nil ) then
+            delay = 0.2;
         end;
-    end,
 
-    GetRegistredEntities = function( self )
-        return RegistredEntity;
-    end,
+        timer.Simple( delay, function()
+            if ( SERVER ) then
+                ent:SetCustomCollisionCheck( true );
 
-    EntityExistsInWorld = function( self, ply, ent )
-        if ( table.HasValue( RegistredEntity, ent ) ) then
-            local World = self:GetPlayerWorld( ply );
-
-            if ( World ~= nil and not table.HasValue( World:GetEntities(), ent ) ) then
-                return false;
+                if ( world_name ~= nil ) then
+                    if ( MWorld.Worlds:IsExists( world_name ) ) then
+                        MWorld.Worlds:GetWorld( world_name ):AddEntity( ent );
+                    end;
+                end;
             end;
-        end;
 
-        return true;
+            if ( SERVER ) then
+                net.Start( MWorld.Prefix .. '_RegisterEntity' );
+                net.WriteInt( ent:EntIndex(), 32 );
+                net.Broadcast();
+            end;
+        end );
     end,
 
-    Syns = function( self, ply, world_name, syns_regent )
+    EntityExistsInWorld = function( self, ent )
+        
+        if ( table.HasValue( MWorld.Worlds:GetAllEntities(), ent ) ) then
+            return true;
+        end;
+
+        return false;
+    end,
+
+    EntityExistsInPlayerWorld = function( self, ply, ent )
+        local World = self:GetPlayerWorld( ply );
+
+        if ( World ~= nil and table.HasValue( World:GetEntities(), ent ) ) then
+            return true;
+        end;
+
+        return false;
+    end,
+
+    SyncAll = function( self, ply )
 
         if ( CLIENT ) then return; end;
 
-        if ( syns_regent ~= nil and tobool( syns_regent ) ) then
-            local RegistredEntityIds = {};
+        for _, world in pairs( MWorld.Worlds:GetWorlds() ) do
+            self:Sync( ply, world:GetName() );
+        end
 
-            for _, ent in pairs( RegistredEntity ) do
-                table.insert( RegistredEntityIds, ent:EntIndex() );
-            end;
+    end,
 
-            net.Start( MWorld.Prefix .. '_SynsRegisterEntity' );
-            net.WriteTable( RegistredEntityIds );
-            net.Send( ply );
-        end;
+    Sync = function( self, ply, world_name )
+
+        if ( CLIENT ) then return; end;
 
         local World = MWorld.Worlds:GetWorld( world_name );
 
@@ -122,7 +147,7 @@ local Meta = {
             table.insert( EntitiesIds, ent:EntIndex() );
         end;
 
-        net.Start( MWorld.Prefix .. '_SynsWorld' );
+        net.Start( MWorld.Prefix .. '_SyncWorld' );
         net.WriteString( World:GetName() );
         net.WriteString( World:GetOwnerId() );
         net.WriteTable( PlayersIds );

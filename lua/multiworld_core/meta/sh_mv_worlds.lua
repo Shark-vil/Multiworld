@@ -34,8 +34,8 @@ local Meta = {
 
             local steamid64;
 
-            if ( ply == nil and world_name == 'master' ) then
-                steamid64 = 'master';
+            if ( ply == nil ) then
+                steamid64 = 'world';
             else
                 steamid64 = ply:SteamID();
             end;
@@ -56,15 +56,27 @@ local Meta = {
                 end,
 
                 GetOwner = function( self )
-                    return self.player.GetBySteamID64( OwnerId );
+                    if ( self.OwnerId == 'world' ) then
+                        return self.OwnerId;
+                    else
+                        return player.GetBySteamID64( self.OwnerId );
+                    end;
                 end,
 
-                AddPlayer = function( ply )
+                IsOwner = function( self, owner )
+                    if ( owner == self:GetOwner() ) then
+                        return true;
+                    end;
+
+                    return false;
+                end,
+
+                AddPlayer = function( self, ply )
                     table.insert( self.Players, ply );
                     MWorld.Debug( 'Added player [ ' .. tostring( ply ) .. ' ] to world ' .. self.WorldName );
                 end,
 
-                RemovePLayer = function( ply )
+                RemovePlayer = function( self, ply )
                     for i = 1, table.Count( self.Players ) do
                         if ( self.Players[ i ] == ply ) then
                             table.remove( self.Players, i );
@@ -81,6 +93,35 @@ local Meta = {
                 IsExistsPlayer = function( self, ply )
                     return table.HasValue( self.Players, ply );
                 end;
+
+                RopeSync = function( self )
+
+                    if ( SERVER ) then return; end;
+
+                    local ropes = ents.FindByClass( "class C_RopeKeyframe" );
+
+                    for _, ent in pairs( self.Entities ) do
+                        local isBreak = false;
+
+                        for _, rope in pairs( ropes ) do
+                            if ( not table.HasValue( self.Entities, rope ) ) then
+                                local entsAtRope = ents.FindInSphere( rope:GetPos(), 0.1 );
+                                if ( entsAtRope ~= nil ) then
+                                    if ( table.HasValue( entsAtRope, ent ) ) then
+                                        table.insert( self.Entities, rope );
+                                        isBreak = true;
+                                        break;
+                                    end;
+                                end;
+                            end;
+                        end;
+
+                        if ( isBreak ) then
+                            break;
+                        end;
+                    end;
+
+                end,
 
                 AddEntity = function( self, ent )
                     table.insert( self.Entities, ent );
@@ -123,7 +164,7 @@ local Meta = {
                 end,
 
                 SetPassword = function( self, ply, new_password )
-                    if ( ply == self.GetOwner( ply ) ) then
+                    if ( self:IsOwner( ply ) ) then
                         self.Password = new_password;
                         return true;
                     end;
@@ -158,6 +199,16 @@ local Meta = {
         world_name = self:NormalizeWorldName( world_name );
 
         return Worlds[ world_name ];
+    end,
+
+    GetAllEntities = function( self )
+        local Entities = {};
+
+        for _, world in pairs( Worlds ) do
+            table.Merge( Entities, world:GetEntities() );
+        end;
+
+        return Entities;
     end,
 
     IsExists = function( self, world_name )

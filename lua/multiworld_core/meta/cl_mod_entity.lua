@@ -5,7 +5,7 @@ function _Entity:SetNoDraw( BooleanValue )
 
     if ( not IsValid( self ) ) then return; end;
 
-    if ( not MWorld.Manager:EntityExistsInWorld( LocalPlayer(), self ) ) then
+    if ( not MWorld.Manager:EntityExistsInPlayerWorld( LocalPlayer(), self ) ) then
         _SetNoDraw( self, true );
         return;
     end;

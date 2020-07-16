@@ -1,20 +1,11 @@
 hook.Add( MWorld.Prefix .. '_PlayerInitialSpawn', 'Main', function( ply )
 
-    timer.Simple( 0.1, function()
+    timer.Simple( 0.5, function()
 
-        MWorld.Manager:Syns( ply, 'master', true );
+        MWorld.Manager:SyncAll( ply, 'master' );
 
-        timer.Simple( 0.2, function()
+        timer.Simple( 0.5, function()
             MWorld.Manager:SetPlayerWorld( ply, 'master' );
-
-            local Worlds = MWorld.Worlds:GetWorlds();
-            for WorldName, World in pairs( Worlds ) do
-                if ( WorldName ~= 'master' ) then
-                    timer.Simple( 0.1, function()
-                        MWorld.Manager:Syns( ply, WorldName );
-                    end );
-                end;
-            end;
         end );
 
     end );

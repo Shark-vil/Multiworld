@@ -13,7 +13,7 @@ hook.Add( "ShouldCollide", MWorld.Prefix .. "_CustomCollisionOnEntity", function
     if ( IsValid( ply ) and IsValid( ent ) ) then
         local World = MWorld.Manager:GetPlayerWorld( ply );
         
-        if ( not MWorld.Manager:EntityExistsInWorld( ply, ent ) ) then
+        if ( not MWorld.Manager:EntityExistsInPlayerWorld( ply, ent ) ) then
             return false;
         end;
     end;
